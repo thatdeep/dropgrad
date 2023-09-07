@@ -1,0 +1,42 @@
+experiment:
+  name: "MNIST Experiment SimpleCNN baseline"
+  log_directory: "mnist_simplecnn_baseline"
+
+model:
+  class_name: models.SimpleCNN
+
+random:
+  seed: 13
+
+data:
+  loaders: datasets.get_mnist_dataloaders
+  name: MNIST
+
+gpu:
+  no_cuda: True
+  no_mps: False
+
+debug:
+  dry_run: False
+
+training:
+  trainer: trainers.dropgrad_train_loop
+  batch_size: 64
+  epochs: 50
+  optim:
+    class_name: torch.optim.SGD
+    params:
+      lr: !!float "1e-1"
+  lr_scheduler:
+    class_name: torch.optim.lr_scheduler.StepLR
+    params:
+      step_size: 1
+      gamma: 0.9
+
+logging:
+  log_interval: 10
+  save_model: True
+
+testing:
+  trainer: trainers.dropgrad_test
+  test_batch_size: 1000
