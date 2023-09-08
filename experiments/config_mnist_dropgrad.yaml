@@ -31,7 +31,7 @@ training:
     class_name: torch.optim.lr_scheduler.StepLR
     params:
       step_size: 1
-      gamma: 0.9
+      gamma: 0.95
 
 logging:
   log_interval: 10

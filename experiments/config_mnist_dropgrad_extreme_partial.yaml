@@ -1,6 +1,6 @@
 experiment:
-  name: "MNIST Experiment SimpleCNN baseline"
-  log_directory: "mnist_simplecnn_baseline"
+  name: "MNIST Experiment SimpleCNN dropgrad extreme time settings partial"
+  log_directory: "mnist_simplecnn_dropgrad_extreme_timesteps_partial"
 
 model:
   class_name: models.SimpleCNN
@@ -40,3 +40,16 @@ logging:
 testing:
   trainer: trainers.dropgrad_test
   test_batch_size: 1000
+
+dropgrad:
+  bernoulli_prob: 0.8
+  max_time_steps: 200
+  decay: 0.99
+  partial: True
+  dropout_schedule:
+    - epoch: 1
+      prob: 0.8
+    - epoch: 10
+      prob: 0.9
+    - epoch: 20
+      prob: 0.95

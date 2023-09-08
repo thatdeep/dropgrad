@@ -40,6 +40,9 @@ def train_loop(args, model, train_loader, optimizer, epoch):
                 if param.grad is not None:
                     # Apply dropout and get mask
                     mask = (dropout(torch.ones_like(param.grad)) > 0).float()
+                    if hasattr(args.dropgrad, 'forget') and args.dropgrad.forget:
+                        param.grad *= mask
+                        continue
                     dropped = param.grad * (1.0 - mask)
                     
                     # Create an empty tensor B with shape (b, *A_shape)
@@ -63,8 +66,12 @@ def train_loop(args, model, train_loader, optimizer, epoch):
                     param.grad *= mask
                     
                     # what we do now is unload grad tower by 1 level, and load it with new masked grads
-                    
-                    param.grad += drop_momentum * dropped_tower[name][0, ...]
+
+                    if hasattr(args.dropgrad, 'partial') and args.dropgrad.partial:
+                        param.grad += drop_momentum * dropped_tower[name][0, ...] * mask
+                        dropped_tower[name][1, ...] += dropped_tower[name][0, ...] * (1.0 - mask)
+                    else:
+                        param.grad += drop_momentum * dropped_tower[name][0, ...]
                     
                     dropped_tower[name][0:max_time_steps - 1, ...] = drop_momentum * dropped_tower[name][1: max_time_steps, ...]
                     dropped_tower[name][max_time_steps - 1, ...] = 0
@@ -102,4 +109,5 @@ def test(args, model, test_loader, epoch):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    args.writer.add_scalar('Test/Accuracy', 100. * correct / len(test_loader.dataset), epoch)
     args.writer.add_scalar('Test/Loss', test_loss, epoch)
