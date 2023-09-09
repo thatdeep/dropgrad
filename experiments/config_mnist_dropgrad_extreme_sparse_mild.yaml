@@ -1,0 +1,60 @@
+experiment:
+  name: "MNIST Experiment SimpleCNN dropgrad extreme time settings sparse mild"
+  log_directory: "mnist_simplecnn_dropgrad_extreme_timesteps_sparse_mild"
+
+model:
+  class_name: models.SimpleCNN
+
+random:
+  seed: 13
+
+data:
+  loaders: datasets.get_mnist_dataloaders
+  name: MNIST
+
+gpu:
+  no_cuda: True
+  no_mps: False
+
+debug:
+  dry_run: False
+
+training:
+  trainer: trainers.dropgrad_train_loop
+  batch_size: 64
+  epochs: 50
+  optim:
+    class_name: torch.optim.SGD
+    params:
+      lr: !!float "1e-1"
+  lr_scheduler:
+    class_name: torch.optim.lr_scheduler.StepLR
+    params:
+      step_size: 1
+      gamma: 0.95
+
+logging:
+  log_interval: 10
+  save_model: True
+
+testing:
+  trainer: trainers.dropgrad_test
+  test_batch_size: 1000
+
+dropgrad:
+  bernoulli_prob: 0.75
+  max_time_steps: 100
+  decay: 1.0
+  partial: False
+  dump: True
+  dropout_schedule:
+    - epoch: 1
+      prob: 0.75
+    - epoch: 5
+      prob: 0.5
+    - epoch: 10
+      prob: 0.25
+    - epoch: 20
+      prob: 0.1
+    - epoch: 40
+      prob: 0.05

@@ -77,6 +77,10 @@ def train_loop(args, model, train_loader, optimizer, epoch):
                     dropped_tower[name][max_time_steps - 1, ...] = 0
                     
                     dropped_tower[name] += dropped_placeholder
+
+                    if hasattr(args.dropgrad, 'dump') and args.dropgrad.dump:
+                        if batch_idx == len(train_loader) - 1:
+                            param.grad += drop_momentum * dropped_tower[name].sum(0)
                 
         optimizer.step()
         iteration += 1
